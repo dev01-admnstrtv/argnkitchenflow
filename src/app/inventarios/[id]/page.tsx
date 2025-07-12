@@ -97,7 +97,7 @@ export default function InventarioDetalhePage() {
     setLoadingProdutos(true)
     try {
       const resultado = await buscarProdutosParaInventario(search)
-      if (resultado.success) {
+      if (resultado.success && resultado.data) {
         setProdutos(resultado.data)
       }
     } catch (error) {
