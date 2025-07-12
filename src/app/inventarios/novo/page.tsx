@@ -28,7 +28,7 @@ export default function NovoInventarioPage() {
   useEffect(() => {
     const carregarPracas = async () => {
       const resultado = await buscarPracas()
-      if (resultado.success) {
+      if (resultado.success && resultado.data) {
         setPracas(resultado.data)
       }
     }
