@@ -1,0 +1,8 @@
+{
+  "/page": "app/page.js",
+  "/inventarios/page": "app/inventarios/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/inventarios/[id]/page": "app/inventarios/[id]/page.js",
+  "/inventarios/novo/page": "app/inventarios/novo/page.js",
+  "/inventarios/[id]/editar/page": "app/inventarios/[id]/editar/page.js"
+}
