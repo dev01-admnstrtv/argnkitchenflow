@@ -114,13 +114,36 @@ export default function SeparacaoIndividualPage({ params }: SeparacaoPageProps) 
     return () => clearInterval(interval)
   }, [])
 
+  const recarregarDados = async () => {
+    setLoading(true)
+    try {
+      const [dadosResult, impactoResult] = await Promise.all([
+        buscarDetalhesSeparacao(params.id),
+        calcularImpactoEstoque(params.id)
+      ])
+      
+      if (dadosResult.success) {
+        setDados(dadosResult.data || null)
+      } else {
+        setErrors({ load: dadosResult.error || 'Erro ao carregar dados' })
+      }
+      if (impactoResult.success) {
+        setImpactoEstoque(impactoResult.data)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error)
+      setErrors({ load: 'Erro inesperado ao carregar dados' })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleIniciarSeparacao = async (itemId: string) => {
     setProcessando(itemId)
     try {
       const resultado = await iniciarSeparacaoItem(itemId, usuarioId)
       if (resultado.success) {
-        await carregarDados()
+        await recarregarDados()
       } else {
         setErrors({ [itemId]: resultado.error || 'Erro ao iniciar separação' })
       }
@@ -139,7 +162,7 @@ export default function SeparacaoIndividualPage({ params }: SeparacaoPageProps) 
     try {
       const resultado = await cancelarSeparacaoItem(itemId)
       if (resultado.success) {
-        await carregarDados()
+        await recarregarDados()
       } else {
         setErrors({ [itemId]: resultado.error || 'Erro ao cancelar separação' })
       }
@@ -175,7 +198,7 @@ export default function SeparacaoIndividualPage({ params }: SeparacaoPageProps) 
       const resultado = await concluirSeparacaoItem(formDataToSend)
       if (resultado.success) {
         setItemEditando(null)
-        await carregarDados()
+        await recarregarDados()
       } else {
         setErrors({ [itemEditando]: resultado.error || 'Erro ao salvar item' })
       }
@@ -201,7 +224,7 @@ export default function SeparacaoIndividualPage({ params }: SeparacaoPageProps) 
       const resultado = await aplicarAjustesEstoque(params.id)
       if (resultado.success) {
         alert(`${resultado.data?.ajustes || 0} ajustes aplicados no estoque`)
-        await carregarDados()
+        await recarregarDados()
       } else {
         setErrors({ estoque: resultado.error || 'Erro ao aplicar ajustes' })
       }
