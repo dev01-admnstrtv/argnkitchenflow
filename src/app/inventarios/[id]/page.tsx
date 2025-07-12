@@ -78,7 +78,7 @@ export default function InventarioDetalhePage() {
         setInventario(inventarioResult.data)
       }
       
-      if (itensResult.success) {
+      if (itensResult.success && itensResult.data) {
         setItens(itensResult.data)
       }
     } catch (error) {
