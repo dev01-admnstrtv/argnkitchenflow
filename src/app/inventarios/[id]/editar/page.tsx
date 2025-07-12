@@ -51,7 +51,7 @@ export default function EditarInventarioPage() {
           })
         }
 
-        if (pracasResult.success) {
+        if (pracasResult.success && pracasResult.data) {
           setPracas(pracasResult.data)
         }
       } catch (error) {

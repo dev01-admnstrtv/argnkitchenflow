@@ -54,12 +54,47 @@ export default function SolicitacoesPracaPage({ params }: SolicitacoesPracaPageP
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
 
-  const carregarDados = async (page = 1) => {
+  useEffect(() => {
+    const carregarDados = async (page = 1) => {
+      setLoading(true)
+      try {
+        const [pracaResult, solicitacoesResult] = await Promise.all([
+          buscarPracaPorId(params.id),
+          buscarSolicitacoesPorPraca(
+            params.id,
+            filtroStatus || undefined,
+            filtroPrioridade || undefined,
+            dataInicio || undefined,
+            dataFim || undefined,
+            page
+          )
+        ])
+
+        if (pracaResult.success) {
+          setPraca(pracaResult.data)
+        }
+
+        if (solicitacoesResult.success) {
+          setSolicitacoes(solicitacoesResult.data || [])
+          setTotalPages(solicitacoesResult.totalPages || 1)
+          setTotal(solicitacoesResult.total || 0)
+          setCurrentPage(solicitacoesResult.currentPage || 1)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    carregarDados(1)
+  }, [params.id, filtroStatus, filtroPrioridade, dataInicio, dataFim])
+
+  const handlePageChange = (page: number) => {
     setLoading(true)
-    try {
-      const [pracaResult, solicitacoesResult] = await Promise.all([
-        buscarPracaPorId(params.id),
-        buscarSolicitacoesPorPraca(
+    Promise.resolve().then(async () => {
+      try {
+        const solicitacoesResult = await buscarSolicitacoesPorPraca(
           params.id,
           filtroStatus || undefined,
           filtroPrioridade || undefined,
@@ -67,31 +102,19 @@ export default function SolicitacoesPracaPage({ params }: SolicitacoesPracaPageP
           dataFim || undefined,
           page
         )
-      ])
 
-      if (pracaResult.success) {
-        setPraca(pracaResult.data)
+        if (solicitacoesResult.success) {
+          setSolicitacoes(solicitacoesResult.data || [])
+          setTotalPages(solicitacoesResult.totalPages || 1)
+          setTotal(solicitacoesResult.total || 0)
+          setCurrentPage(solicitacoesResult.currentPage || 1)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+      } finally {
+        setLoading(false)
       }
-
-      if (solicitacoesResult.success) {
-        setSolicitacoes(solicitacoesResult.data || [])
-        setTotalPages(solicitacoesResult.totalPages || 1)
-        setTotal(solicitacoesResult.total || 0)
-        setCurrentPage(solicitacoesResult.currentPage || 1)
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    carregarDados(1)
-  }, [params.id, filtroStatus, filtroPrioridade, dataInicio, dataFim])
-
-  const handlePageChange = (page: number) => {
-    carregarDados(page)
+    })
   }
 
   const limparFiltros = () => {

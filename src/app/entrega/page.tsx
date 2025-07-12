@@ -74,42 +74,63 @@ export default function EntregaPage() {
   // Usuário fixo para teste (depois será dinâmico)
   const usuarioId = '0f4a00bb-a9fd-4e00-ad29-f6e2bf1b4d47'
 
-  const carregarDados = async (page = 1) => {
-    setLoading(true)
-    try {
-      const [solicitacoesResult, estatisticasResult, pracasResult] = await Promise.all([
-        buscarSolicitacoesParaEntrega(filtro || undefined, prioridadeFiltro || undefined, pracaFiltro || undefined, page),
-        buscarEstatisticasEntrega(),
-        buscarPracasDestino()
-      ])
-
-      if (solicitacoesResult.success) {
-        setSolicitacoes(solicitacoesResult.data || [])
-        setTotalPages(solicitacoesResult.totalPages || 1)
-        setTotal(solicitacoesResult.total || 0)
-        setCurrentPage(solicitacoesResult.currentPage || 1)
-      }
-
-      if (estatisticasResult.success) {
-        setEstatisticas(estatisticasResult.data || null)
-      }
-
-      if (pracasResult.success) {
-        setPracas(pracasResult.data || [])
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
+    const carregarDados = async (page = 1) => {
+      setLoading(true)
+      try {
+        const [solicitacoesResult, estatisticasResult, pracasResult] = await Promise.all([
+          buscarSolicitacoesParaEntrega(filtro || undefined, prioridadeFiltro || undefined, pracaFiltro || undefined, page),
+          buscarEstatisticasEntrega(),
+          buscarPracasDestino()
+        ])
+
+        if (solicitacoesResult.success) {
+          setSolicitacoes(solicitacoesResult.data || [])
+          setTotalPages(solicitacoesResult.totalPages || 1)
+          setTotal(solicitacoesResult.total || 0)
+          setCurrentPage(solicitacoesResult.currentPage || 1)
+        }
+
+        if (estatisticasResult.success) {
+          setEstatisticas(estatisticasResult.data || null)
+        }
+
+        if (pracasResult.success) {
+          setPracas(pracasResult.data || [])
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     carregarDados(1)
   }, [filtro, prioridadeFiltro, pracaFiltro])
 
   const handlePageChange = (page: number) => {
-    carregarDados(page)
+    setLoading(true)
+    Promise.resolve().then(async () => {
+      try {
+        const solicitacoesResult = await buscarSolicitacoesParaEntrega(
+          filtro || undefined, 
+          prioridadeFiltro || undefined, 
+          pracaFiltro || undefined, 
+          page
+        )
+        
+        if (solicitacoesResult.success) {
+          setSolicitacoes(solicitacoesResult.data || [])
+          setTotalPages(solicitacoesResult.totalPages || 1)
+          setTotal(solicitacoesResult.total || 0)
+          setCurrentPage(solicitacoesResult.currentPage || 1)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+      } finally {
+        setLoading(false)
+      }
+    })
   }
 
   const handleIniciarEntrega = async (solicitacaoId: string) => {

@@ -56,12 +56,47 @@ export default function HistoricoSolicitacoesPracaPage({ params }: HistoricoPage
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
 
-  const carregarDados = async (page = 1) => {
+  useEffect(() => {
+    const carregarDados = async (page = 1) => {
+      setLoading(true)
+      try {
+        const [pracaResult, historicoResult] = await Promise.all([
+          buscarPracaPorId(params.id),
+          buscarHistoricoSolicitacoesPorPraca(
+            params.id,
+            filtroStatus || undefined,
+            filtroPrioridade || undefined,
+            dataInicio || undefined,
+            dataFim || undefined,
+            page
+          )
+        ])
+
+        if (pracaResult.success) {
+          setPraca(pracaResult.data)
+        }
+
+        if (historicoResult.success) {
+          setHistorico(historicoResult.data)
+          setTotalPages(historicoResult.totalPages || 1)
+          setTotal(historicoResult.total || 0)
+          setCurrentPage(historicoResult.currentPage || 1)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    carregarDados(1)
+  }, [params.id, filtroStatus, filtroPrioridade, dataInicio, dataFim])
+
+  const handlePageChange = (page: number) => {
     setLoading(true)
-    try {
-      const [pracaResult, historicoResult] = await Promise.all([
-        buscarPracaPorId(params.id),
-        buscarHistoricoSolicitacoesPorPraca(
+    Promise.resolve().then(async () => {
+      try {
+        const historicoResult = await buscarHistoricoSolicitacoesPorPraca(
           params.id,
           filtroStatus || undefined,
           filtroPrioridade || undefined,
@@ -69,31 +104,19 @@ export default function HistoricoSolicitacoesPracaPage({ params }: HistoricoPage
           dataFim || undefined,
           page
         )
-      ])
 
-      if (pracaResult.success) {
-        setPraca(pracaResult.data)
+        if (historicoResult.success) {
+          setHistorico(historicoResult.data)
+          setTotalPages(historicoResult.totalPages || 1)
+          setTotal(historicoResult.total || 0)
+          setCurrentPage(historicoResult.currentPage || 1)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+      } finally {
+        setLoading(false)
       }
-
-      if (historicoResult.success) {
-        setHistorico(historicoResult.data)
-        setTotalPages(historicoResult.totalPages || 1)
-        setTotal(historicoResult.total || 0)
-        setCurrentPage(historicoResult.currentPage || 1)
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    carregarDados(1)
-  }, [params.id, filtroStatus, filtroPrioridade, dataInicio, dataFim])
-
-  const handlePageChange = (page: number) => {
-    carregarDados(page)
+    })
   }
 
   const limparFiltros = () => {

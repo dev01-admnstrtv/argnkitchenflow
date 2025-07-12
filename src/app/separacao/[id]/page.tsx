@@ -79,6 +79,30 @@ export default function SeparacaoIndividualPage({ params }: SeparacaoPageProps) 
   const usuarioId = '0f4a00bb-a9fd-4e00-ad29-f6e2bf1b4d47'
 
   useEffect(() => {
+    const carregarDados = async () => {
+      setLoading(true)
+      try {
+        const [dadosResult, impactoResult] = await Promise.all([
+          buscarDetalhesSeparacao(params.id),
+          calcularImpactoEstoque(params.id)
+        ])
+        
+        if (dadosResult.success) {
+          setDados(dadosResult.data || null)
+        } else {
+          setErrors({ load: dadosResult.error || 'Erro ao carregar dados' })
+        }
+        if (impactoResult.success) {
+          setImpactoEstoque(impactoResult.data)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+        setErrors({ load: 'Erro inesperado ao carregar dados' })
+      } finally {
+        setLoading(false)
+      }
+    }
+
     carregarDados()
   }, [params.id])
 
@@ -90,30 +114,6 @@ export default function SeparacaoIndividualPage({ params }: SeparacaoPageProps) 
     return () => clearInterval(interval)
   }, [])
 
-  const carregarDados = async () => {
-    setLoading(true)
-    try {
-      const [dadosResult, impactoResult] = await Promise.all([
-        buscarDetalhesSeparacao(params.id),
-        calcularImpactoEstoque(params.id)
-      ])
-      
-      if (dadosResult.success) {
-        setDados(dadosResult.data || null)
-      } else {
-        setErrors({ load: dadosResult.error || 'Erro ao carregar dados' })
-      }
-
-      if (impactoResult.success) {
-        setImpactoEstoque(impactoResult.data)
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error)
-      setErrors({ load: 'Erro inesperado ao carregar dados' })
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleIniciarSeparacao = async (itemId: string) => {
     setProcessando(itemId)
