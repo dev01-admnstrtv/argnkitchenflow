@@ -441,7 +441,7 @@ export default function InventarioDetalhePage() {
                           <span>
                             <strong>Quantidade:</strong> {item.quantidade}
                           </span>
-                          {item.quantidade_em_uso > 0 && (
+                          {item.quantidade_em_uso && item.quantidade_em_uso > 0 && (
                             <span>
                               <strong>Em Uso:</strong> {item.quantidade_em_uso}
                             </span>
