@@ -16,25 +16,50 @@
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/page.js"
     ],
-    "/inventarios/page": [
+    "/solicitacoes/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/inventarios/page.js"
+      "static/chunks/app/solicitacoes/page.js"
+    ],
+    "/solicitacoes/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/solicitacoes/[id]/page.js"
+    ],
+    "/solicitacoes/nova/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/solicitacoes/nova/page.js"
+    ],
+    "/separacao/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/separacao/page.js"
+    ],
+    "/separacao/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/separacao/[id]/page.js"
+    ],
+    "/entrega/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/entrega/page.js"
+    ],
+    "/entrega/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/entrega/[id]/page.js"
     ],
     "/inventarios/novo/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/inventarios/novo/page.js"
     ],
-    "/inventarios/[id]/page": [
+    "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/inventarios/[id]/page.js"
-    ],
-    "/inventarios/[id]/editar/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/inventarios/[id]/editar/page.js"
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

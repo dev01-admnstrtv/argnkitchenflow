@@ -23,7 +23,6 @@ import {
   BarChart3,
   Play
 } from 'lucide-react'
-import { Timer } from '@/components/ui/timer'
 import Link from 'next/link'
 
 interface SolicSepar {
@@ -399,16 +398,6 @@ export default function SeparacaoPage() {
                     </div>
                   </div>
 
-                  {/* Tempo de separação */}
-                  {solicitacao.iniciado_em && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Timer 
-                        startTime={solicitacao.iniciado_em}
-                        className="text-gray-600"
-                        format="text"
-                      />
-                    </div>
-                  )}
 
                   <div className="flex justify-end gap-2 pt-2">
                     <Button variant="outline" size="sm" asChild>

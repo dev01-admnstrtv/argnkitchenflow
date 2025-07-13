@@ -45,7 +45,7 @@ function NovaSolicitacaoPageContent() {
     const carregarDados = async () => {
       const [resultadoPracas, resultadoProdutos] = await Promise.all([
         buscarPracasDestino(),
-        buscarProdutos()
+        buscarProdutos('', '', '', 1, 1000) // Carregar até 1000 produtos
       ])
 
       if (resultadoPracas.success) {

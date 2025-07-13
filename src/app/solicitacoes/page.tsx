@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { buscarSolicitacoes } from '@/lib/actions/solicitacoes'
+import { buscarSolicitacoes, deletarSolicitacao } from '@/lib/actions/solicitacoes'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { formatDate, getStatusColor, getPriorityColor } from '@/lib/utils'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { SolicitacaoCompleta } from '@/types'
 
@@ -17,23 +17,48 @@ export default function SolicitacoesPage() {
   const [user, setUser] = useState<any>(null)
   const [filtro, setFiltro] = useState('')
 
-  useEffect(() => {
-    const carregarDados = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser()
-        setUser(user)
-
-        const resultado = await buscarSolicitacoes(user?.id)
-        if (resultado.success) {
-          setSolicitacoes(resultado.data || [])
-        }
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error)
-      } finally {
-        setLoading(false)
-      }
+  const handleExcluirSolicitacao = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta solicitação?')) {
+      return
     }
 
+    try {
+      const resultado = await deletarSolicitacao(id)
+      if (resultado.success) {
+        // Recarregar dados
+        carregarDados()
+      } else {
+        alert('Erro ao excluir solicitação: ' + resultado.error)
+      }
+    } catch (error) {
+      console.error('Erro ao excluir solicitação:', error)
+      alert('Erro ao excluir solicitação')
+    }
+  }
+
+  const podeExcluirSolicitacao = (solicitacao: SolicitacaoCompleta) => {
+    return solicitacao.itens.every((item: any) => 
+      item.status_separacao === 'aguardando' || !item.status_separacao
+    )
+  }
+
+  const carregarDados = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+
+      const resultado = await buscarSolicitacoes(user?.id)
+      if (resultado.success) {
+        setSolicitacoes(resultado.data || [])
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
     carregarDados()
   }, [])
 
@@ -123,10 +148,6 @@ export default function SolicitacoesPage() {
                     <span className="font-medium">{solicitacao.janela_entrega}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>Tipo:</span>
-                    <span className="font-medium">{solicitacao.tipo}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
                     <span>Itens:</span>
                     <span className="font-medium">{solicitacao.itens.length}</span>
                   </div>
@@ -147,6 +168,16 @@ export default function SolicitacoesPage() {
                       <Link href={`/solicitacoes/${solicitacao.id}/editar`}>
                         Editar
                       </Link>
+                    </Button>
+                  )}
+                  {podeExcluirSolicitacao(solicitacao) && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleExcluirSolicitacao(solicitacao.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   )}
                 </div>

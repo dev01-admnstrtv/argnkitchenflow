@@ -232,20 +232,18 @@ export async function concluirSeparacaoItem(formData: FormData) {
         concluido_separacao_em: new Date().toISOString()
       })
       .eq('id', validatedData.item_id)
-      .eq('status_separacao', 'separando') // Só permite concluir se estiver separando
       .select()
-      .single()
 
     if (error) {
       throw new Error('Erro ao concluir separação: ' + error.message)
     }
 
-    if (!data) {
-      throw new Error('Item não encontrado ou não está em separação')
+    if (!data || data.length === 0) {
+      throw new Error('Item não encontrado')
     }
 
     revalidatePath('/separacao')
-    return { success: true, data }
+    return { success: true, data: data[0] }
   } catch (error) {
     console.error('Erro ao concluir separação do item:', error)
     return {
@@ -448,6 +446,21 @@ export async function aplicarAjustesEstoque(solicitacaoId: string) {
   try {
     const supabase = createServiceClient()
     
+    // Verificar se já existem movimentações para esta solicitação (evitar duplicatas)
+    const { data: movimentacoesExistentes, error: checkError } = await supabase
+      .from('movimento_estoque')
+      .select('id')
+      .eq('solicitacao_id', solicitacaoId)
+      .limit(1)
+
+    if (checkError) {
+      throw new Error('Erro ao verificar movimentações existentes: ' + checkError.message)
+    }
+
+    if (movimentacoesExistentes && movimentacoesExistentes.length > 0) {
+      throw new Error('Ajustes de estoque já foram aplicados para esta solicitação')
+    }
+    
     // Buscar dados da solicitação para pegar informações da praça
     const { data: solicitacao, error: solicitacaoError } = await supabase
       .from('solicitacoes')
@@ -480,13 +493,10 @@ export async function aplicarAjustesEstoque(solicitacaoId: string) {
     // Criar movimentações de estoque para cada item separado
     const movimentacoes = itens.map(item => ({
       produto_id: item.produto_id,
-      tipo: solicitacao.tipo === 'entrada' ? 'entrada' : 'saida',
+      tipo_movimento: solicitacao.tipo === 'entrada' ? 'entrada' : 'saida',
       quantidade: item.quantidade_separada,
-      motivo: `Separação de solicitação - ${solicitacao.praca_destino?.nome}`,
-      referencia_id: solicitacaoId,
-      referencia_tipo: 'solicitacao',
-      usuario_id: item.separado_por_usuario_id,
-      observacoes: item.observacoes_separacao
+      solicitacao_id: solicitacaoId,
+      observacoes: `Separação de solicitação - ${solicitacao.praca_destino?.nome}${item.observacoes_separacao ? ` | ${item.observacoes_separacao}` : ''}`
     }))
 
     const { data: movimentacoesData, error: movError } = await supabase
@@ -524,6 +534,35 @@ export async function aplicarAjustesEstoque(solicitacaoId: string) {
     }
   } catch (error) {
     console.error('Erro ao aplicar ajustes de estoque:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    }
+  }
+}
+
+export async function verificarAjustesEstoqueAplicados(solicitacaoId: string) {
+  try {
+    const supabase = createServiceClient()
+    
+    const { data, error } = await supabase
+      .from('movimento_estoque')
+      .select('id')
+      .eq('solicitacao_id', solicitacaoId)
+      .limit(1)
+
+    if (error) {
+      throw new Error('Erro ao verificar ajustes: ' + error.message)
+    }
+
+    return { 
+      success: true, 
+      data: { 
+        ajustesAplicados: !!(data && data.length > 0) 
+      } 
+    }
+  } catch (error) {
+    console.error('Erro ao verificar ajustes de estoque:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Erro desconhecido'

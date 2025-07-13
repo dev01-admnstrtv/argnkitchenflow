@@ -168,11 +168,24 @@ export async function atualizarStatusSolicitacao(id: string, novoStatus: string)
   }
 }
 
-export async function deletarSolicitacao(id: string) {
+export async function atualizarSolicitacao(id: string, formData: FormData) {
   try {
     const supabase = createServiceClient()
     
-    // Verificar se a solicitação pode ser deletada
+    // Validar dados do formulário
+    const rawData = {
+      praca_destino_id: formData.get('praca_destino_id') as string,
+      prioridade: formData.get('prioridade') as string,
+      observacoes: formData.get('observacoes') as string,
+      tipo: formData.get('tipo') as string,
+      data_entrega: formData.get('data_entrega') as string,
+      janela_entrega: formData.get('janela_entrega') as string,
+      itens: JSON.parse(formData.get('itens') as string || '[]'),
+    }
+
+    const validatedData = solicitacaoSchema.parse(rawData)
+    
+    // Verificar se a solicitação pode ser editada
     const { data: solicitacao, error: fetchError } = await supabase
       .from('solicitacoes')
       .select('status')
@@ -184,7 +197,88 @@ export async function deletarSolicitacao(id: string) {
     }
 
     if (solicitacao.status !== 'pendente') {
-      throw new Error('Não é possível deletar solicitação que não está pendente')
+      throw new Error('Não é possível editar solicitação que não está pendente')
+    }
+
+    // Atualizar solicitação
+    const { error: solicitacaoError } = await supabase
+      .from('solicitacoes')
+      .update({
+        praca_destino_id: validatedData.praca_destino_id,
+        prioridade: validatedData.prioridade,
+        observacoes: validatedData.observacoes,
+        tipo: validatedData.tipo,
+        data_entrega: validatedData.data_entrega,
+        janela_entrega: validatedData.janela_entrega,
+      })
+      .eq('id', id)
+
+    if (solicitacaoError) {
+      throw new Error('Erro ao atualizar solicitação: ' + solicitacaoError.message)
+    }
+
+    // Deletar itens existentes
+    const { error: deleteError } = await supabase
+      .from('itens_solicitacao')
+      .delete()
+      .eq('solicitacao_id', id)
+
+    if (deleteError) {
+      throw new Error('Erro ao deletar itens existentes: ' + deleteError.message)
+    }
+
+    // Criar novos itens da solicitação
+    const itensData = validatedData.itens.map(item => ({
+      solicitacao_id: id,
+      produto_id: item.produto_id,
+      quantidade_solicitada: item.quantidade_solicitada,
+      observacoes: item.observacoes,
+    }))
+
+    const { error: itensError } = await supabase
+      .from('itens_solicitacao')
+      .insert(itensData)
+
+    if (itensError) {
+      throw new Error('Erro ao criar novos itens da solicitação: ' + itensError.message)
+    }
+
+    revalidatePath('/solicitacoes')
+    return { success: true }
+  } catch (error) {
+    console.error('Erro ao atualizar solicitação:', error)
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Erro desconhecido' 
+    }
+  }
+}
+
+export async function deletarSolicitacao(id: string) {
+  try {
+    const supabase = createServiceClient()
+    
+    // Verificar se a solicitação pode ser deletada
+    const { data: solicitacao, error: fetchError } = await supabase
+      .from('solicitacoes')
+      .select(`
+        status,
+        itens:itens_solicitacao(status_separacao)
+      `)
+      .eq('id', id)
+      .single()
+
+    if (fetchError) {
+      throw new Error('Erro ao buscar solicitação: ' + fetchError.message)
+    }
+
+    // Verificar se todos os itens estão no status 'aguardando'
+    const todosItensPendentes = solicitacao.itens.every(
+      (item: any) => item.status_separacao === 'aguardando'
+    )
+
+    if (!todosItensPendentes) {
+      throw new Error('Não é possível deletar solicitação que possui itens fora do status "Aguardando"')
     }
 
     const { error } = await supabase
