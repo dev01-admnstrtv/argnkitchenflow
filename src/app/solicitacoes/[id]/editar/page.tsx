@@ -329,7 +329,7 @@ export default function EditarSolicitacaoPage() {
 
               {formData.itens.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                  Nenhum item adicionado. Clique em "Adicionar Item" para começar.
+                  Nenhum item adicionado. Clique em &quot;Adicionar Item&quot; para começar.
                 </div>
               ) : (
                 <div className="space-y-4">
