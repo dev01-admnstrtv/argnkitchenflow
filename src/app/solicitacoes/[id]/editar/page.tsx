@@ -64,7 +64,7 @@ export default function EditarSolicitacaoPage() {
             tipo: sol.tipo,
             data_entrega: sol.data_entrega,
             janela_entrega: sol.janela_entrega,
-            itens: sol.itens.map(item => ({
+            itens: sol.itens.map((item: any) => ({
               id: item.id,
               produto_id: item.produto_id,
               quantidade_solicitada: item.quantidade_solicitada,
