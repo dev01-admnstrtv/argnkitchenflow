@@ -15,34 +15,29 @@ import {
   Trash2, 
   ShoppingCart,
   Package,
-  Filter,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp
+  Filter
 } from 'lucide-react'
 import Link from 'next/link'
 import { ProdutoComAgrupamento } from '@/types'
+import Image from 'next/image'
 
 export default function ProdutosPage() {
   const [produtos, setProdutos] = useState<ProdutoComAgrupamento[]>([])
   const [grupos, setGrupos] = useState<{grupo: string, subgrupos: string[]}[]>([])
   const [loading, setLoading] = useState(true)
   const [filtro, setFiltro] = useState('')
+  const [filtroInput, setFiltroInput] = useState('')
   const [tipoFiltro, setTipoFiltro] = useState('')
   const [grupoFiltro, setGrupoFiltro] = useState('')
   const [showFiltros, setShowFiltros] = useState(false)
   const [total, setTotal] = useState(0)
-  const [expandedSubgroups, setExpandedSubgroups] = useState<Set<string>>(new Set())
-  const [subgroupPages, setSubgroupPages] = useState<Record<string, number>>({})
-  const [subgroupProducts, setSubgroupProducts] = useState<Record<string, ProdutoComAgrupamento[]>>({})
-  const PRODUTOS_POR_SUBGRUPO = 6
 
   const carregarDados = useCallback(async () => {
     setLoading(true)
     try {
+      const filtroEfetivo = filtro.length >= 3 ? filtro : undefined
       const [resultadoProdutos, resultadoGrupos] = await Promise.all([
-        buscarProdutos(filtro || undefined, tipoFiltro || undefined, grupoFiltro || undefined, 1, 1000), // Carregar todos os produtos
+        buscarProdutos(filtroEfetivo, tipoFiltro || undefined, grupoFiltro || undefined, 1, 1000), // Carregar todos os produtos
         buscarGruposProdutos()
       ])
 
@@ -65,6 +60,15 @@ export default function ProdutosPage() {
     carregarDados()
   }, [carregarDados])
 
+  // Debounce para o filtro de pesquisa
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setFiltro(filtroInput)
+    }, 300) // 300ms de delay
+
+    return () => clearTimeout(timeoutId)
+  }, [filtroInput])
+
   const handleDelete = async (id: string, descricao: string) => {
     if (confirm(`Tem certeza que deseja deletar o produto "${descricao}"?`)) {
       const resultado = await deletarProduto(id)
@@ -78,58 +82,11 @@ export default function ProdutosPage() {
 
   const limparFiltros = () => {
     setFiltro('')
+    setFiltroInput('')
     setTipoFiltro('')
     setGrupoFiltro('')
   }
 
-  const toggleSubgroup = (subgroupKey: string) => {
-    setExpandedSubgroups(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(subgroupKey)) {
-        newSet.delete(subgroupKey)
-      } else {
-        newSet.add(subgroupKey)
-        // Inicializar página do subgrupo se não existir
-        if (!subgroupPages[subgroupKey]) {
-          setSubgroupPages(prevPages => ({
-            ...prevPages,
-            [subgroupKey]: 1
-          }))
-        }
-      }
-      return newSet
-    })
-  }
-
-  const expandAll = () => {
-    const allSubgroups = agruparProdutosPorSubgrupo(produtos).map(grupo => 
-      `${grupo.grupo}-${grupo.subgrupo}`
-    )
-    setExpandedSubgroups(new Set(allSubgroups))
-  }
-
-  const collapseAll = () => {
-    setExpandedSubgroups(new Set())
-  }
-
-  const loadMoreProducts = (subgroupKey: string) => {
-    setSubgroupPages(prev => ({
-      ...prev,
-      [subgroupKey]: (prev[subgroupKey] || 1) + 1
-    }))
-  }
-
-  const getVisibleProducts = (produtos: ProdutoComAgrupamento[], subgroupKey: string) => {
-    const currentPage = subgroupPages[subgroupKey] || 1
-    const endIndex = currentPage * PRODUTOS_POR_SUBGRUPO
-    return produtos.slice(0, endIndex)
-  }
-
-  const hasMoreProducts = (produtos: ProdutoComAgrupamento[], subgroupKey: string) => {
-    const currentPage = subgroupPages[subgroupKey] || 1
-    const endIndex = currentPage * PRODUTOS_POR_SUBGRUPO
-    return produtos.length > endIndex
-  }
 
   // Função para agrupar produtos por subgrupo
   const agruparProdutosPorSubgrupo = (produtos: ProdutoComAgrupamento[]) => {
@@ -174,9 +131,18 @@ export default function ProdutosPage() {
               Voltar
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold">Produtos</h1>
-            <p className="text-gray-600">Total: {total} produtos</p>
+          <div className="flex items-center gap-4">
+            <Image
+              src="https://www.administrative.com.br/aragon/aragon.png"
+              alt="Logo do Restaurante"
+              width={60}
+              height={60}
+              className="rounded-lg shadow-sm"
+            />
+            <div>
+              <h1 className="text-3xl font-bold">Produtos</h1>
+              <p className="text-gray-600">Total: {total} produtos</p>
+            </div>
           </div>
         </div>
         <Button asChild>
@@ -194,9 +160,9 @@ export default function ProdutosPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               type="text"
-              placeholder="Pesquisar produtos..."
-              value={filtro}
-              onChange={(e) => setFiltro(e.target.value)}
+              placeholder="Pesquisar produtos (mínimo 3 caracteres)..."
+              value={filtroInput}
+              onChange={(e) => setFiltroInput(e.target.value)}
               className="pl-10"
             />
           </div>
@@ -208,22 +174,10 @@ export default function ProdutosPage() {
             <Filter className="h-4 w-4" />
             Filtros
           </Button>
-          {(tipoFiltro || grupoFiltro) && (
+          {(tipoFiltro || grupoFiltro || filtroInput) && (
             <Button variant="outline" onClick={limparFiltros}>
               Limpar Filtros
             </Button>
-          )}
-          {produtos.length > 0 && (
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={expandAll}>
-                <ChevronDown className="h-4 w-4 mr-1" />
-                Expandir Todos
-              </Button>
-              <Button variant="outline" size="sm" onClick={collapseAll}>
-                <ChevronUp className="h-4 w-4 mr-1" />
-                Recolher Todos
-              </Button>
-            </div>
           )}
         </div>
 
@@ -278,23 +232,14 @@ export default function ProdutosPage() {
         <>
           {agruparProdutosPorSubgrupo(produtos).map((grupo) => {
             const subgroupKey = `${grupo.grupo}-${grupo.subgrupo}`
-            const isExpanded = expandedSubgroups.has(subgroupKey)
             
             return (
-              <div key={subgroupKey} className="mb-6">
-                {/* Cabeçalho do Grupo com Botão de Collapse/Expand */}
-                <div 
-                  className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => toggleSubgroup(subgroupKey)}
-                >
+              <div key={subgroupKey} className="mb-8">
+                {/* Cabeçalho do Grupo */}
+                <div className="flex items-center gap-3 mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-l-4 border-blue-500">
                   <div className="flex items-center gap-2">
-                    {isExpanded ? (
-                      <ChevronDown className="h-5 w-5 text-gray-600" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5 text-gray-600" />
-                    )}
                     <Package className="h-5 w-5 text-blue-600" />
-                    <h2 className="text-xl font-semibold">{grupo.grupo}</h2>
+                    <h2 className="text-xl font-semibold text-gray-800">{grupo.grupo}</h2>
                     <span className="text-gray-400">›</span>
                     <h3 className="text-lg font-medium text-gray-700">{grupo.subgrupo}</h3>
                   </div>
@@ -303,95 +248,67 @@ export default function ProdutosPage() {
                   </Badge>
                 </div>
 
-                {/* Grid de Produtos do Subgrupo - Só aparece se expandido */}
-                {isExpanded && (
-                  <div className="animate-in slide-in-from-top-2 duration-200">
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-4">
-                      {getVisibleProducts(grupo.produtos, subgroupKey).map((produto) => (
-                        <Card key={produto.id} className="hover:shadow-md transition-shadow">
-                          <CardHeader className="pb-3">
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <CardTitle className="text-lg line-clamp-2">
-                                  {produto.descricao}
-                                </CardTitle>
-                                <p className="text-sm text-gray-500 mt-1">
-                                  {produto.produto_id}
-                                </p>
-                              </div>
-                              <Badge variant="outline">
-                                {produto.tipo}
-                              </Badge>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="space-y-3">
-                            <div className="space-y-2">
-                              {produto.agrupamento_descricao && (
-                                <div className="flex justify-between text-sm">
-                                  <span className="text-gray-600">Agrupamento:</span>
-                                  <span className="font-medium text-blue-600">{produto.agrupamento_descricao}</span>
-                                </div>
-                              )}
-                              <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Custo:</span>
-                                <span className="font-medium">{formatCurrency(produto.custo || 0)}</span>
-                              </div>
-                            </div>
-                            
-                            <div className="flex gap-2 pt-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                asChild
-                                className="flex-1"
-                              >
-                                <Link href={`/solicitacoes/nova?produto=${produto.id}`}>
-                                  <ShoppingCart className="h-4 w-4 mr-1" />
-                                  Solicitar
-                                </Link>
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                asChild
-                              >
-                                <Link href={`/produtos/${produto.id}/editar`}>
-                                  <Edit className="h-4 w-4" />
-                                </Link>
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDelete(produto.id, produto.descricao)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                    
-                    {/* Botão Carregar Mais */}
-                    {hasMoreProducts(grupo.produtos, subgroupKey) && (
-                      <div className="flex justify-center">
-                        <Button
-                          variant="outline"
-                          onClick={() => loadMoreProducts(subgroupKey)}
-                          className="w-full max-w-md"
-                        >
-                          Carregar mais {PRODUTOS_POR_SUBGRUPO} produtos
-                          <ChevronDown className="h-4 w-4 ml-2" />
-                        </Button>
-                      </div>
-                    )}
-                    
-                    {/* Indicador de quantidade */}
-                    <div className="text-center text-sm text-gray-500 mt-2">
-                      Mostrando {getVisibleProducts(grupo.produtos, subgroupKey).length} de {grupo.produtos.length} produtos
-                    </div>
-                  </div>
-                )}
+                {/* Grid de Produtos do Subgrupo - Sempre visível */}
+                <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                  {grupo.produtos.map((produto) => (
+                    <Card key={produto.id} className="hover:shadow-md transition-all duration-200 hover:scale-105">
+                      <CardHeader className="pb-2">
+                        <div className="space-y-2">
+                          <CardTitle className="text-sm font-medium">
+                            {produto.descricao}
+                          </CardTitle>
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs text-gray-500">
+                              {produto.produto_id}
+                            </p>
+                            <Badge variant="outline" className="text-xs">
+                              {produto.subgrupo}
+                            </Badge>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-gray-600">Custo:</span>
+                            <span className="font-medium text-sm">{formatCurrency(produto.custo || 0)}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-1 pt-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            asChild
+                            className="flex-1 h-8 text-xs"
+                          >
+                            <Link href={`/solicitacoes/nova?produto=${produto.id}`}>
+                              <ShoppingCart className="h-3 w-3" />
+                            </Link>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            asChild
+                            className="h-8"
+                          >
+                            <Link href={`/produtos/${produto.id}/editar`}>
+                              <Edit className="h-3 w-3" />
+                            </Link>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(produto.id, produto.descricao)}
+                            className="h-8"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             )
           })}

@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/page": [
+    "/produtos/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/produtos/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -16,50 +16,25 @@
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/page.js"
     ],
-    "/solicitacoes/page": [
+    "/agrupamentos/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/solicitacoes/page.js"
+      "static/chunks/app/agrupamentos/page.js"
     ],
-    "/solicitacoes/[id]/page": [
+    "/produtos/novo/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/solicitacoes/[id]/page.js"
-    ],
-    "/solicitacoes/nova/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/solicitacoes/nova/page.js"
-    ],
-    "/separacao/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/separacao/page.js"
-    ],
-    "/separacao/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/separacao/[id]/page.js"
-    ],
-    "/entrega/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/entrega/page.js"
-    ],
-    "/entrega/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/entrega/[id]/page.js"
+      "static/chunks/app/produtos/novo/page.js"
     ],
     "/inventarios/novo/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/inventarios/novo/page.js"
     ],
-    "/_not-found/page": [
+    "/pracas/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/pracas/page.js"
     ]
   }
 }

@@ -1,9 +1,8 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
+  "/produtos/page": "app/produtos/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/entrega/page": "app/entrega/page.js",
-  "/entrega/[id]/page": "app/entrega/[id]/page.js",
-  "/separacao/page": "app/separacao/page.js",
-  "/separacao/[id]/page": "app/separacao/[id]/page.js",
-  "/inventarios/novo/page": "app/inventarios/novo/page.js"
+  "/produtos/novo/page": "app/produtos/novo/page.js",
+  "/agrupamentos/page": "app/agrupamentos/page.js",
+  "/inventarios/novo/page": "app/inventarios/novo/page.js",
+  "/pracas/page": "app/pracas/page.js"
 }
