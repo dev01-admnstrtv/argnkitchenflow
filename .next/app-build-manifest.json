@@ -21,16 +21,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/page.js"
     ],
-    "/solicitacoes/nova/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/solicitacoes/nova/page.js"
-    ],
-    "/agrupamentos/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/agrupamentos/page.js"
-    ],
     "/inventarios/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",

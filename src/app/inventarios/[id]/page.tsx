@@ -69,6 +69,8 @@ export default function InventarioDetalhePage() {
     quantidade_em_uso: ''
   })
 
+  const [searchTerm, setSearchTerm] = useState('')
+
   const carregarDados = useCallback(async () => {
     setLoading(true)
     try {
@@ -218,6 +220,19 @@ export default function InventarioDetalhePage() {
     }
   }
 
+  // Função para filtrar itens por termo de pesquisa
+  const filterItens = (itens: InventarioItemData[], searchTerm: string) => {
+    if (!searchTerm.trim()) return itens
+    
+    const lowerSearch = searchTerm.toLowerCase()
+    return itens.filter(item => 
+      item.produto_descricao.toLowerCase().includes(lowerSearch) ||
+      item.codigo_produto.toLowerCase().includes(lowerSearch) ||
+      item.produto_grupo.toLowerCase().includes(lowerSearch) ||
+      item.produto_subgrupo.toLowerCase().includes(lowerSearch)
+    )
+  }
+
   // Função para agrupar itens por subgrupo
   const agruparItensPorSubgrupo = (itens: InventarioItemData[]) => {
     const agrupados = itens.reduce((acc, item) => {
@@ -254,61 +269,67 @@ export default function InventarioDetalhePage() {
 
   return (
     <div className="min-h-screen">
-      {/* Modern Header */}
+      {/* Top Bar - Only Back Button */}
       <header className="relative backdrop-blur-xl bg-white/80 border-b border-white/20 shadow-lg">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5" />
         <div className="relative container mx-auto px-4">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center gap-4">
-              <Button variant="outline" asChild className="hover-lift glass-card">
-                <Link href="/inventarios">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Voltar
-                </Link>
-              </Button>
-              <div className="flex items-center gap-4">
-                <Image
-                  src="https://www.administrative.com.br/aragon/aragon.png"
-                  alt="Logo do Restaurante"
-                  width={48}
-                  height={48}
-                  className="rounded-xl shadow-lg ring-2 ring-white/50"
-                />
-                <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    {inventario.numero_inventario}
-                  </h1>
-                  <p className="text-sm text-gray-500 font-medium">📍 {inventario.praca_nome}</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {getStatusBadge(inventario.status)}
-              {podeEditar && (
-                <>
-                  <Button
-                    onClick={() => setShowAddItem(true)}
-                    disabled={showAddItem}
-                    className="gradient-primary text-white border-0 hover:shadow-lg hover-lift"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    <Sparkles className="h-4 w-4 mr-1" />
-                    Adicionar Item
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleFinalizar}
-                    className="text-green-600 hover:text-green-700 hover-lift glass-card border-green-200 hover:bg-green-50"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Finalizar
-                  </Button>
-                </>
-              )}
-            </div>
+          <div className="flex justify-between items-center h-16">
+            <Button variant="outline" asChild className="hover-lift glass-card">
+              <Link href="/inventarios">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Voltar
+              </Link>
+            </Button>
           </div>
         </div>
       </header>
+
+      {/* Title Section - Outside of top bar */}
+      <div className="container mx-auto px-4 py-6 bg-gradient-to-r from-purple-50/50 to-pink-50/50">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center gap-4">
+            <Image
+              src="https://www.administrative.com.br/aragon/aragon.png"
+              alt="Logo do Restaurante"
+              width={40}
+              height={40}
+              className="rounded-lg shadow-lg ring-2 ring-white/50"
+            />
+            <div>
+              <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                {inventario.numero_inventario}
+              </h1>
+              <p className="text-sm text-gray-500 font-medium">📍 {inventario.praca_nome}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 w-full md:w-auto flex-wrap">
+            {getStatusBadge(inventario.status)}
+            {podeEditar && (
+              <>
+                <Button
+                  onClick={() => setShowAddItem(true)}
+                  disabled={showAddItem}
+                  className="gradient-primary text-white border-0 hover:shadow-lg hover-lift"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  <Sparkles className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Adicionar Item</span>
+                  <span className="sm:hidden">Adicionar</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleFinalizar}
+                  className="text-green-600 hover:text-green-700 hover-lift glass-card border-green-200 hover:bg-green-50"
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Finalizar</span>
+                  <span className="sm:hidden">✓</span>
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="container mx-auto px-4 py-8">
 
@@ -325,31 +346,31 @@ export default function InventarioDetalhePage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200">
-                  <div className="p-2 rounded-lg bg-blue-500 shadow-sm">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300">
+                  <div className="p-2 rounded-lg bg-gray-500 shadow-sm">
                     <Calendar className="h-4 w-4 text-white" />
                   </div>
                   <div>
-                    <span className="text-blue-600 text-sm font-medium">Data de Contagem</span>
-                    <p className="font-bold text-blue-800">{formatarData(inventario.data_contagem)}</p>
+                    <span className="text-gray-600 text-sm font-medium">Data de Contagem</span>
+                    <p className="font-bold text-gray-800">{formatarData(inventario.data_contagem)}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200">
-                  <div className="p-2 rounded-lg bg-emerald-500 shadow-sm">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300">
+                  <div className="p-2 rounded-lg bg-gray-500 shadow-sm">
                     <User className="h-4 w-4 text-white" />
                   </div>
                   <div>
-                    <span className="text-emerald-600 text-sm font-medium">Responsável</span>
-                    <p className="font-bold text-emerald-800">{inventario.responsavel}</p>
+                    <span className="text-gray-600 text-sm font-medium">Responsável</span>
+                    <p className="font-bold text-gray-800">{inventario.responsavel}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200">
-                  <div className="p-2 rounded-lg bg-purple-500 shadow-sm">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300">
+                  <div className="p-2 rounded-lg bg-gray-500 shadow-sm">
                     <Hash className="h-4 w-4 text-white" />
                   </div>
                   <div>
-                    <span className="text-purple-600 text-sm font-medium">Total de Itens</span>
-                    <p className="font-bold text-purple-800">{inventario.total_itens}</p>
+                    <span className="text-gray-600 text-sm font-medium">Total de Itens</span>
+                    <p className="font-bold text-gray-800">{inventario.total_itens}</p>
                   </div>
                 </div>
               </div>
@@ -470,12 +491,26 @@ export default function InventarioDetalhePage() {
         <div className="animate-fade-in">
           <Card className="glass-card border-0 shadow-xl">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3 text-xl">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 shadow-lg">
-                  <Package className="h-5 w-5 text-white" />
+              <div className="flex flex-col gap-4">
+                <CardTitle className="flex items-center gap-3 text-xl">
+                  <div className="p-2 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 shadow-lg">
+                    <Package className="h-5 w-5 text-white" />
+                  </div>
+                  📦 Itens do Inventário
+                </CardTitle>
+                
+                {/* Search Field */}
+                <div className="relative max-w-md">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Input
+                    type="text"
+                    placeholder="Buscar itens por nome, código ou categoria..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-12 h-12 text-base focus-ring rounded-xl border-0 bg-white/50"
+                  />
                 </div>
-                📦 Itens do Inventário
-              </CardTitle>
+              </div>
             </CardHeader>
             <CardContent>
               {itens.length === 0 ? (
@@ -503,7 +538,7 @@ export default function InventarioDetalhePage() {
                 </div>
               ) : (
                 <>
-                  {agruparItensPorSubgrupo(itens).map((grupo, groupIndex) => {
+                  {agruparItensPorSubgrupo(filterItens(itens, searchTerm)).map((grupo, groupIndex) => {
                     const subgroupKey = `${grupo.grupo}-${grupo.subgrupo}`
                     
                     return (
