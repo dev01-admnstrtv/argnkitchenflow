@@ -281,24 +281,15 @@ export default function InventarioDetalhePage() {
               </Link>
             </Button>
             
-            <div className="flex items-center gap-3">
-              <Image
-                src="https://www.administrative.com.br/aragon/aragon.png"
-                alt="Logo do Restaurante"
-                width={40}
-                height={40}
-                className="rounded-lg shadow-lg ring-2 ring-white/50"
-              />
-              <div>
-                <h1 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  {inventario.numero_inventario}
-                </h1>
-                <p className="text-xs text-gray-500 font-medium">📍 {inventario.praca_nome}</p>
-              </div>
-            </div>
+            <Image
+              src="https://www.administrative.com.br/aragon/aragon.png"
+              alt="Logo do Restaurante"
+              width={40}
+              height={40}
+              className="rounded-lg shadow-lg ring-2 ring-white/50"
+            />
 
             <div className="flex items-center gap-2">
-              {getStatusBadge(inventario.status)}
               {podeEditar && (
                 <Button
                   onClick={() => setShowAddItem(true)}
@@ -316,20 +307,30 @@ export default function InventarioDetalhePage() {
         </div>
       </header>
 
-      {/* Actions Section - Below top bar */}
+      {/* Info Section - Below top bar */}
       <div className="container mx-auto px-4 py-4 bg-gradient-to-r from-purple-50/50 to-pink-50/50">
-        <div className="flex justify-center">
-          {podeEditar && (
-            <Button
-              variant="outline"
-              onClick={handleFinalizar}
-              className="text-green-600 hover:text-green-700 hover-lift glass-card border-green-200 hover:bg-green-50"
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Finalizar Inventário</span>
-              <span className="sm:hidden">Finalizar</span>
-            </Button>
-          )}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-center md:text-left">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              {inventario.numero_inventario}
+            </h1>
+            <p className="text-sm text-gray-500 font-medium">📍 {inventario.praca_nome}</p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {getStatusBadge(inventario.status)}
+            {podeEditar && (
+              <Button
+                variant="outline"
+                onClick={handleFinalizar}
+                className="text-green-600 hover:text-green-700 hover-lift glass-card border-green-200 hover:bg-green-50"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Finalizar Inventário</span>
+                <span className="sm:hidden">Finalizar</span>
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
