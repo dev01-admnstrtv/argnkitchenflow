@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, Calendar, User, MapPin, Clock, Package } from 'lucide-react'
+import { ArrowLeft, Calendar, User, MapPin, Clock, Package, FileText, Sparkles, Star } from 'lucide-react'
+import Link from 'next/link'
+import Image from 'next/image'
 import { buscarSolicitacaoPorId } from '@/lib/actions/solicitacoes'
 
 interface SolicitacaoDetalhes {
@@ -109,9 +111,10 @@ export default function DetalhesSolicitacaoPage({ params }: { params: { id: stri
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-lg">Carregando...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="glass-card p-8 rounded-3xl shadow-xl">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-center">Carregando solicitação...</p>
         </div>
       </div>
     )
@@ -119,12 +122,20 @@ export default function DetalhesSolicitacaoPage({ params }: { params: { id: stri
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-center">
-            <div className="text-red-600 text-lg mb-4">{error}</div>
-            <Button onClick={() => router.back()}>Voltar</Button>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="glass-card p-12 rounded-3xl shadow-xl max-w-md mx-auto text-center">
+          <div className="relative mb-6">
+            <Package className="mx-auto h-16 w-16 text-red-300" />
+            <div className="absolute -top-2 -right-2">
+              <Star className="h-6 w-6 text-red-400 fill-current" />
+            </div>
           </div>
+          <h3 className="text-xl font-semibold text-red-700 mb-2">Erro ao carregar</h3>
+          <p className="text-red-600 mb-6">{error}</p>
+          <Button onClick={() => router.back()} className="gradient-primary text-white border-0 hover:shadow-lg hover-lift">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
+          </Button>
         </div>
       </div>
     )
@@ -132,154 +143,254 @@ export default function DetalhesSolicitacaoPage({ params }: { params: { id: stri
 
   if (!solicitacao) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-center">
-            <div className="text-gray-600 text-lg mb-4">Solicitação não encontrada</div>
-            <Button onClick={() => router.back()}>Voltar</Button>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="glass-card p-12 rounded-3xl shadow-xl max-w-md mx-auto text-center">
+          <div className="relative mb-6">
+            <Package className="mx-auto h-16 w-16 text-gray-300" />
+            <div className="absolute -top-2 -right-2">
+              <Star className="h-6 w-6 text-yellow-400 fill-current" />
+            </div>
           </div>
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">Solicitação não encontrada</h3>
+          <p className="text-gray-500 mb-6">A solicitação que você está procurando não existe</p>
+          <Button onClick={() => router.back()} className="gradient-primary text-white border-0 hover:shadow-lg hover-lift">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
+          </Button>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="outline" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
-          </Button>
-          <h1 className="text-3xl font-bold">Detalhes da Solicitação</h1>
+    <div className="min-h-screen">
+      {/* Top Bar */}
+      <header className="relative backdrop-blur-xl bg-white/80 border-b border-white/20 shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
+        <div className="relative container mx-auto px-4">
+          <div className="flex justify-between items-center h-16">
+            <Button variant="outline" asChild className="hover-lift glass-card">
+              <Link href="/solicitacoes">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Voltar
+              </Link>
+            </Button>
+            
+            <Image
+              src="https://www.administrative.com.br/aragon/aragon.png"
+              alt="Logo do Restaurante"
+              width={40}
+              height={40}
+              className="rounded-lg shadow-lg ring-2 ring-white/50"
+            />
+
+            <div className="w-20"></div>
+          </div>
         </div>
+      </header>
 
-        <div className="grid gap-6">
-          {/* Informações Gerais */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5" />
-                Informações Gerais
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center gap-2">
-                  <Badge className={getStatusColor(solicitacao.status)}>
-                    {solicitacao.status.charAt(0).toUpperCase() + solicitacao.status.slice(1)}
-                  </Badge>
-                  <Badge className={getPrioridadeColor(solicitacao.prioridade)}>
-                    {solicitacao.prioridade.charAt(0).toUpperCase() + solicitacao.prioridade.slice(1)}
-                  </Badge>
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Calendar className="h-4 w-4" />
-                  <span>Criada em: {formatDate(solicitacao.created_at)}</span>
-                </div>
+      {/* Info Section */}
+      <div className="container mx-auto px-4 py-4 bg-gradient-to-r from-purple-50/50 to-blue-50/50">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-center md:text-left">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              📋 Detalhes da Solicitação
+            </h1>
+            <p className="text-sm text-gray-500 font-medium">Visualize informações completas da solicitação</p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Badge className={`${getStatusColor(solicitacao.status)} px-3 py-1`}>
+              {solicitacao.status.charAt(0).toUpperCase() + solicitacao.status.slice(1)}
+            </Badge>
+            <Badge className={`${getPrioridadeColor(solicitacao.prioridade)} px-3 py-1`}>
+              {solicitacao.prioridade.charAt(0).toUpperCase() + solicitacao.prioridade.slice(1)}
+            </Badge>
+          </div>
+        </div>
+      </div>
 
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <User className="h-4 w-4" />
-                  <span>Solicitante: {solicitacao.solicitante.nome}</span>
-                </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
 
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <MapPin className="h-4 w-4" />
-                  <span>Destino: {solicitacao.praca_destino.nome}</span>
-                </div>
-
-                {solicitacao.data_entrega && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Calendar className="h-4 w-4" />
-                    <span>Data de Entrega: {new Date(solicitacao.data_entrega).toLocaleDateString('pt-BR')}</span>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Clock className="h-4 w-4" />
-                  <span>Janela: {formatJanelaEntrega(solicitacao.janela_entrega)}</span>
-                </div>
-              </div>
-
-              {solicitacao.observacoes && (
-                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                  <h4 className="font-medium mb-2">Observações:</h4>
-                  <p className="text-sm text-gray-700">{solicitacao.observacoes}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Destino */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Destino
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Local</label>
-                  <p className="font-medium">{solicitacao.praca_destino.nome}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Tipo</label>
-                  <p className="font-medium capitalize">{solicitacao.praca_destino.tipo}</p>
-                </div>
-                {solicitacao.praca_destino.responsavel && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Responsável</label>
-                    <p className="font-medium">{solicitacao.praca_destino.responsavel}</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Itens */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5" />
-                Itens Solicitados ({solicitacao.itens.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {solicitacao.itens.map((item) => (
-                  <div key={item.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex-1">
-                        <h4 className="font-medium">{item.produto.descricao}</h4>
-                        <p className="text-sm text-gray-600">
-                          {item.produto.produto_id} • {item.produto.grupo} • {item.produto.subgrupo}
-                        </p>
-                      </div>
-                      <Badge variant="outline" className="ml-2">
-                        {item.produto.tipo}
-                      </Badge>
+          <div className="grid gap-8">
+            {/* Informações Gerais */}
+            <div className="animate-fade-in">
+              <Card className="glass-card border-0 shadow-xl">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg">
+                      <FileText className="h-5 w-5 text-white" />
                     </div>
-                    
-                    <div className="flex items-center gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-600">Quantidade: </span>
-                        <span className="font-medium">{item.quantidade_solicitada}</span>
+                    📋 Informações Gerais
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="h-4 w-4 text-blue-600" />
+                        <span className="text-xs font-medium text-blue-600">Data de Criação</span>
+                      </div>
+                      <div className="font-bold text-blue-800 text-sm">
+                        {formatDate(solicitacao.created_at)}
                       </div>
                     </div>
 
-                    {item.observacoes && (
-                      <div className="mt-2 p-2 bg-gray-50 rounded text-sm">
-                        <strong>Observações:</strong> {item.observacoes}
+                    <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-purple-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <User className="h-4 w-4 text-purple-600" />
+                        <span className="text-xs font-medium text-purple-600">Solicitante</span>
+                      </div>
+                      <div className="font-bold text-purple-800 text-sm">
+                        {solicitacao.solicitante.nome}
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-gradient-to-r from-green-50 to-green-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <MapPin className="h-4 w-4 text-green-600" />
+                        <span className="text-xs font-medium text-green-600">Destino</span>
+                      </div>
+                      <div className="font-bold text-green-800 text-sm">
+                        {solicitacao.praca_destino.nome}
+                      </div>
+                    </div>
+
+                    {solicitacao.data_entrega && (
+                      <div className="p-4 rounded-lg bg-gradient-to-r from-orange-50 to-orange-100">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Calendar className="h-4 w-4 text-orange-600" />
+                          <span className="text-xs font-medium text-orange-600">Data de Entrega</span>
+                        </div>
+                        <div className="font-bold text-orange-800 text-sm">
+                          {new Date(solicitacao.data_entrega).toLocaleDateString('pt-BR')}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="p-4 rounded-lg bg-gradient-to-r from-teal-50 to-teal-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Clock className="h-4 w-4 text-teal-600" />
+                        <span className="text-xs font-medium text-teal-600">Janela de Entrega</span>
+                      </div>
+                      <div className="font-bold text-teal-800 text-sm">
+                        {formatJanelaEntrega(solicitacao.janela_entrega)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {solicitacao.observacoes && (
+                    <div className="mt-6 p-4 rounded-lg bg-gradient-to-r from-gray-50 to-gray-100">
+                      <span className="text-xs font-medium text-gray-600">💬 Observações:</span>
+                      <p className="text-sm text-gray-700 mt-2 leading-relaxed">{solicitacao.observacoes}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Destino */}
+            <div className="animate-fade-in">
+              <Card className="glass-card border-0 shadow-xl">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-green-500 to-teal-500 shadow-lg">
+                      <MapPin className="h-5 w-5 text-white" />
+                    </div>
+                    📍 Informações do Destino
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="p-4 rounded-lg bg-gradient-to-r from-green-50 to-green-100">
+                      <span className="text-xs font-medium text-green-600">🏢 Local</span>
+                      <div className="font-bold text-green-800 text-sm mt-1">
+                        {solicitacao.praca_destino.nome}
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100">
+                      <span className="text-xs font-medium text-blue-600">📁 Tipo</span>
+                      <div className="font-bold text-blue-800 text-sm mt-1 capitalize">
+                        {solicitacao.praca_destino.tipo}
+                      </div>
+                    </div>
+                    {solicitacao.praca_destino.responsavel && (
+                      <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-purple-100">
+                        <span className="text-xs font-medium text-purple-600">👤 Responsável</span>
+                        <div className="font-bold text-purple-800 text-sm mt-1">
+                          {solicitacao.praca_destino.responsavel}
+                        </div>
                       </div>
                     )}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Itens */}
+            <div className="animate-fade-in">
+              <Card className="glass-card border-0 shadow-xl">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 shadow-lg">
+                      <Package className="h-5 w-5 text-white" />
+                    </div>
+                    📦 Itens Solicitados
+                  </CardTitle>
+                  <Badge className="bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 border-orange-200 px-3 py-1">
+                    {solicitacao.itens.length} {solicitacao.itens.length === 1 ? 'item' : 'itens'}
+                  </Badge>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {solicitacao.itens.map((item, index) => (
+                      <div 
+                        key={item.id} 
+                        className="glass-card rounded-xl p-4 shadow-lg animate-scale-in"
+                        style={{animationDelay: `${index * 100}ms`}}
+                      >
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex items-center gap-3 flex-1">
+                            <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-sm">
+                              <Package className="h-4 w-4 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-800">{item.produto.descricao}</h4>
+                              <p className="text-sm text-gray-500">
+                                <code className="bg-gray-100 px-2 py-1 rounded text-xs">{item.produto.produto_id}</code>
+                                <span className="mx-2">•</span>
+                                <span>{item.produto.grupo}</span>
+                                <span className="mx-2">•</span>
+                                <span>{item.produto.subgrupo}</span>
+                              </p>
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 border-gray-200">
+                            {item.produto.tipo}
+                          </Badge>
+                        </div>
+                        
+                        <div className="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100">
+                          <span className="text-xs font-medium text-blue-600">📊 Quantidade solicitada:</span>
+                          <div className="font-bold text-blue-800 text-sm mt-1">
+                            {item.quantidade_solicitada}
+                          </div>
+                        </div>
+
+                        {item.observacoes && (
+                          <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-gray-50 to-gray-100">
+                            <span className="text-xs font-medium text-gray-600">💬 Observações:</span>
+                            <p className="text-sm text-gray-700 mt-1 leading-relaxed">{item.observacoes}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>
