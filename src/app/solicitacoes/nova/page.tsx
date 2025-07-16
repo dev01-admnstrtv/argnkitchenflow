@@ -369,7 +369,7 @@ function NovaSolicitacaoPageContent() {
                           </div>
                         </div>
                         <h3 className="text-xl font-semibold text-gray-800 mb-2">Nenhum item adicionado</h3>
-                        <p className="text-gray-600 mb-6">Clique em "Adicionar Item" para começar a montar sua solicitação</p>
+                        <p className="text-gray-600 mb-6">Clique em &quot;Adicionar Item&quot; para começar a montar sua solicitação</p>
                         <Button
                           type="button"
                           onClick={() => setShowProdutos(true)}
