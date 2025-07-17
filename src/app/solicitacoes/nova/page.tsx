@@ -33,6 +33,7 @@ function NovaSolicitacaoPageContent() {
   const [searchProduto, setSearchProduto] = useState('')
   const [loading, setLoading] = useState(false)
   const [showProdutos, setShowProdutos] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   
   const [formData, setFormData] = useState({
     praca_destino_id: '',
@@ -84,13 +85,19 @@ function NovaSolicitacaoPageContent() {
     carregarDados()
   }, [produtoPreSelecionado])
 
-  useEffect(() => {
+  // Função para realizar a busca manualmente
+  const realizarBusca = () => {
     const filtrados = produtos.filter(produto =>
       produto.descricao.toLowerCase().includes(searchProduto.toLowerCase()) ||
       produto.produto_id.toLowerCase().includes(searchProduto.toLowerCase())
     )
     setProdutosFiltrados(filtrados)
-  }, [searchProduto, produtos])
+  }
+
+  // Carregar todos os produtos inicialmente
+  useEffect(() => {
+    setProdutosFiltrados([])
+  }, [produtos])
 
   const adicionarItem = (produto: Produto) => {
     const novoItem: ItemSolicitacao = {
@@ -128,13 +135,18 @@ function NovaSolicitacaoPageContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (submitted) return // Evita envio duplo
+    
     setLoading(true)
+    setSubmitted(true)
 
     try {
       // Validação especial: se produto foi pré-selecionado, observação é obrigatória
       if (produtoPreSelecionado && !formData.observacoes.trim()) {
         alert('Para solicitação direta de produto, a observação é obrigatória!')
         setLoading(false)
+        setSubmitted(false)
         return
       }
 
@@ -153,10 +165,12 @@ function NovaSolicitacaoPageContent() {
         router.push('/solicitacoes')
       } else {
         alert('Erro ao criar solicitação: ' + resultado.error)
+        setSubmitted(false)
       }
     } catch (error) {
       console.error('Erro ao criar solicitação:', error)
       alert('Erro ao criar solicitação')
+      setSubmitted(false)
     } finally {
       setLoading(false)
     }
@@ -328,15 +342,29 @@ function NovaSolicitacaoPageContent() {
                 <CardContent className="pt-6">
                   {showProdutos && (
                     <div className="mb-6 p-4 bg-white border-2 border-gray-200 rounded-xl shadow-lg animate-slide-up">
-                      <div className="relative mb-4">
-                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
-                        <Input
-                          type="text"
-                          placeholder="Pesquisar produtos por nome ou código..."
-                          value={searchProduto}
-                          onChange={(e) => setSearchProduto(e.target.value)}
-                          className="pl-12 h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-xl bg-white shadow-sm"
-                        />
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
+                          <Input
+                            type="text"
+                            placeholder="Pesquisar produtos por nome ou código..."
+                            value={searchProduto}
+                            onChange={(e) => setSearchProduto(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && realizarBusca()}
+                            className="pl-12 h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-xl bg-white shadow-sm"
+                          />
+                        </div>
+                        <div className="flex justify-center">
+                          <Button
+                            type="button"
+                            onClick={realizarBusca}
+                            disabled={!searchProduto.trim()}
+                            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 hover:shadow-xl hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <Search className="h-4 w-4 mr-2" />
+                            Buscar Produtos
+                          </Button>
+                        </div>
                       </div>
                       <div className="max-h-60 overflow-y-auto space-y-2">
                         {produtosFiltrados.map(produto => (
@@ -462,7 +490,7 @@ function NovaSolicitacaoPageContent() {
               </Button>
               <Button 
                 type="submit" 
-                disabled={loading || formData.itens.length === 0}
+                disabled={loading || formData.itens.length === 0 || submitted}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 hover:shadow-xl hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
