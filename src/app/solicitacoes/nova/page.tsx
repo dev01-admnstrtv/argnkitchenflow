@@ -99,6 +99,19 @@ function NovaSolicitacaoPageContent() {
     setProdutosFiltrados([])
   }, [produtos])
 
+  // Auto search quando o usuário digita acima de 3 caracteres
+  useEffect(() => {
+    if (searchProduto.length >= 3) {
+      const timeoutId = setTimeout(() => {
+        realizarBusca()
+      }, 500) // Debounce de 500ms
+      
+      return () => clearTimeout(timeoutId)
+    } else {
+      setProdutosFiltrados([])
+    }
+  }, [searchProduto])
+
   const adicionarItem = (produto: Produto) => {
     const novoItem: ItemSolicitacao = {
       produto_id: produto.id,
