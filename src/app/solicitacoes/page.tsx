@@ -204,7 +204,7 @@ export default function SolicitacoesPage() {
                                 📍 {solicitacao.praca_destino.nome}
                               </CardTitle>
                               <p className="text-sm text-gray-600 mt-1">
-                                📅 {formatDate(solicitacao.data_entrega)}
+                                📅 {formatDate(solicitacao.created_at)}
                               </p>
                             </div>
                           </div>
