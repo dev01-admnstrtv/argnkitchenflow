@@ -27,15 +27,11 @@ export const separacaoSchema = z.object({
   observacoes: z.string().optional(),
 })
 
-export const entregaSchema = z.object({
-  solicitacao_id: z.string().uuid(),
-  observacoes: z.string().optional(),
-})
 
 export const usuarioSchema = z.object({
   nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().email('Email inválido'),
-  perfil: z.enum(['solicitante', 'conferente', 'entregador', 'admin']),
+  perfil: z.enum(['solicitante', 'conferente', 'admin']),
 })
 
 export const produtoSchema = z.object({

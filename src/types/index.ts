@@ -44,9 +44,9 @@ export type SolicitacaoStatus = 'pendente' | 'rejeitada' | 'separando' | 'entreg
 export type SolicitacaoPrioridade = 'baixa' | 'normal' | 'alta' | 'urgente'
 export type JanelaEntrega = 'manha' | 'tarde'
 export type TipoSolicitacao = 'entrada' | 'saida'
-export type StatusItem = 'solicitado' | 'separado' | 'entregue' | 'em_falta'
+export type StatusItemSeparacao = 'aguardando' | 'separando' | 'separado' | 'em_falta' | 'cancelado'
 export type TipoProduto = 'insumo' | 'produzido' | 'produto'
-export type PerfilUsuario = 'solicitante' | 'conferente' | 'entregador' | 'admin'
+export type PerfilUsuario = 'solicitante' | 'conferente' | 'admin'
 export type TipoPraca = 'cozinha' | 'salao' | 'bar' | 'estoque' | 'limpeza' | 'escritorio' | 'geral'
 
 export interface SolicitacaoCompleta extends Solicitacao {

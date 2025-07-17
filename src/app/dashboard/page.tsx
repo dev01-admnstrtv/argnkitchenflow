@@ -8,7 +8,6 @@ import {
   MapPin, 
   BarChart3, 
   Truck, 
-  ShoppingCart,
   ClipboardList,
   Sparkles,
   TrendingUp,
@@ -60,7 +59,7 @@ const modules = [
   {
     id: 'separacao',
     title: 'Separação',
-    description: 'Controle inteligente de separação de itens',
+    description: 'Separação e finalização de solicitações',
     icon: Truck,
     color: 'from-orange-500 to-red-500',
     actions: [
@@ -68,18 +67,6 @@ const modules = [
     ],
     stats: '89 pendentes',
     trend: '-8%'
-  },
-  {
-    id: 'entrega',
-    title: 'Entrega',
-    description: 'Gerenciamento completo de entregas',
-    icon: ShoppingCart,
-    color: 'from-indigo-500 to-purple-500',
-    actions: [
-      { label: 'Entregas', href: '/entrega' }
-    ],
-    stats: '34 em rota',
-    trend: '+15%'
   },
   {
     id: 'inventarios',
