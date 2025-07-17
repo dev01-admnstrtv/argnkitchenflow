@@ -19,6 +19,7 @@ interface ItemSolicitacao {
   quantidade_solicitada: number
   observacoes?: string
   produto?: Produto
+  timestamp?: number // Para controlar a ordem de adição
 }
 
 function NovaSolicitacaoPageContent() {
@@ -38,7 +39,7 @@ function NovaSolicitacaoPageContent() {
     prioridade: 'normal' as 'baixa' | 'normal' | 'alta' | 'urgente',
     observacoes: '',
     tipo: 'saida' as 'entrada' | 'saida',
-    data_entrega: '',
+    data_entrega: new Date().toISOString().split('T')[0], // Data de hoje como padrão
     janela_entrega: 'manha' as 'manha' | 'tarde' | 'noite',
     itens: [] as ItemSolicitacao[],
   })
@@ -68,6 +69,7 @@ function NovaSolicitacaoPageContent() {
             quantidade_solicitada: 1,
             observacoes: '',
             produto: resultadoProduto.data,
+            timestamp: Date.now(),
           }
           
           setFormData(prev => ({
@@ -96,29 +98,30 @@ function NovaSolicitacaoPageContent() {
       quantidade_solicitada: 1,
       observacoes: '',
       produto: produto,
+      timestamp: Date.now(), // Adiciona timestamp para ordenação
     }
 
     setFormData(prev => ({
       ...prev,
-      itens: [...prev.itens, novoItem]
+      itens: [novoItem, ...prev.itens] // Adiciona no início da lista
     }))
 
     setShowProdutos(false)
     setSearchProduto('')
   }
 
-  const removerItem = (index: number) => {
+  const removerItem = (timestamp: number) => {
     setFormData(prev => ({
       ...prev,
-      itens: prev.itens.filter((_, i) => i !== index)
+      itens: prev.itens.filter(item => item.timestamp !== timestamp)
     }))
   }
 
-  const atualizarItem = (index: number, campo: string, valor: any) => {
+  const atualizarItem = (timestamp: number, campo: string, valor: any) => {
     setFormData(prev => ({
       ...prev,
-      itens: prev.itens.map((item, i) => 
-        i === index ? { ...item, [campo]: valor } : item
+      itens: prev.itens.map(item => 
+        item.timestamp === timestamp ? { ...item, [campo]: valor } : item
       )
     }))
   }
@@ -383,8 +386,10 @@ function NovaSolicitacaoPageContent() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {formData.itens.map((item, index) => (
-                        <div key={index} className="bg-white border-2 border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300" style={{animationDelay: `${index * 100}ms`}}>
+                      {formData.itens
+                        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)) // Ordena por timestamp, mais recentes primeiro
+                        .map((item, index) => (
+                        <div key={item.timestamp || index} className="bg-white border-2 border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300" style={{animationDelay: `${index * 100}ms`}}>
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
                               <div className="p-2 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 shadow-sm border border-blue-200">
@@ -403,7 +408,7 @@ function NovaSolicitacaoPageContent() {
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => removerItem(index)}
+                              onClick={() => removerItem(item.timestamp || 0)}
                               className="border-2 border-gray-300 hover:border-red-500 hover:bg-red-50 hover:text-red-700 transition-all duration-200"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -419,7 +424,7 @@ function NovaSolicitacaoPageContent() {
                                 step="0.01"
                                 min="0.01"
                                 value={item.quantidade_solicitada}
-                                onChange={(e) => atualizarItem(index, 'quantidade_solicitada', parseFloat(e.target.value) || 0)}
+                                onChange={(e) => atualizarItem(item.timestamp || 0, 'quantidade_solicitada', parseFloat(e.target.value) || 0)}
                                 required
                                 className="h-10 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg bg-white shadow-sm"
                               />
@@ -431,7 +436,7 @@ function NovaSolicitacaoPageContent() {
                               <Input
                                 type="text"
                                 value={item.observacoes || ''}
-                                onChange={(e) => atualizarItem(index, 'observacoes', e.target.value)}
+                                onChange={(e) => atualizarItem(item.timestamp || 0, 'observacoes', e.target.value)}
                                 placeholder="Observações do item..."
                                 className="h-10 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg bg-white shadow-sm"
                               />
