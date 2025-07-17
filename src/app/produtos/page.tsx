@@ -62,14 +62,6 @@ export default function ProdutosPage() {
     carregarDados()
   }, [carregarDados])
 
-  // Debounce para o filtro de pesquisa
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setFiltro(filtroInput)
-    }, 300) // 300ms de delay
-
-    return () => clearTimeout(timeoutId)
-  }, [filtroInput])
 
   const handleDelete = async (id: string, descricao: string) => {
     if (confirm(`Tem certeza que deseja deletar o produto "${descricao}"?`)) {
@@ -177,10 +169,20 @@ export default function ProdutosPage() {
                   placeholder="🔍 Pesquisar produtos (mínimo 3 caracteres)..."
                   value={filtroInput}
                   onChange={(e) => setFiltroInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && filtroInput.length >= 3 && setFiltro(filtroInput)}
                   className="pl-12 h-12 text-base focus-ring rounded-xl border-0 bg-white/50"
                 />
               </div>
               <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setFiltro(filtroInput)}
+                  disabled={filtroInput.length < 3}
+                  className="flex items-center gap-2 hover-lift glass-card h-12 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 hover:shadow-xl hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Search className="h-4 w-4" />
+                  Buscar Produtos
+                </Button>
                 <Button
                   variant="outline"
                   onClick={() => setShowFiltros(!showFiltros)}

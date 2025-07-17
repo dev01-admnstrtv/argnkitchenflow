@@ -367,17 +367,6 @@ function NovaSolicitacaoPageContent() {
                             className="pl-12 h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-xl bg-white shadow-sm"
                           />
                         </div>
-                        <div className="flex justify-center">
-                          <Button
-                            type="button"
-                            onClick={realizarBusca}
-                            disabled={!searchProduto.trim()}
-                            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 hover:shadow-xl hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <Search className="h-4 w-4 mr-2" />
-                            Buscar Produtos
-                          </Button>
-                        </div>
                       </div>
                       <div className="max-h-60 overflow-y-auto space-y-2">
                         {produtosFiltrados.map(produto => (
