@@ -33,34 +33,49 @@ export default function ProdutosPage() {
   const [grupoFiltro, setGrupoFiltro] = useState('')
   const [showFiltros, setShowFiltros] = useState(false)
   const [total, setTotal] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [loadingMore, setLoadingMore] = useState(false)
 
-  const carregarDados = useCallback(async () => {
-    setLoading(true)
+  const carregarDados = useCallback(async (page = 1, append = false) => {
+    const loader = append ? setLoadingMore : setLoading
+    loader(true)
     try {
+      // Carregar apenas poucos itens inicialmente (50) para melhorar performance
+      const limit = filtro.length >= 3 ? 200 : 50
       const filtroEfetivo = filtro.length >= 3 ? filtro : undefined
       const [resultadoProdutos, resultadoGrupos] = await Promise.all([
-        buscarProdutos(filtroEfetivo, tipoFiltro || undefined, grupoFiltro || undefined, 1, 1000), // Carregar todos os produtos
-        buscarGruposProdutos()
+        buscarProdutos(filtroEfetivo, tipoFiltro || undefined, grupoFiltro || undefined, page, limit),
+        page === 1 ? buscarGruposProdutos() : Promise.resolve({ success: true, data: null })
       ])
 
       if (resultadoProdutos.success) {
-        setProdutos(resultadoProdutos.data || [])
+        if (append) {
+          setProdutos(prev => [...prev, ...(resultadoProdutos.data || [])])
+        } else {
+          setProdutos(resultadoProdutos.data || [])
+        }
         setTotal(resultadoProdutos.total || 0)
+        setCurrentPage(page)
       }
 
-      if (resultadoGrupos.success) {
+      if (resultadoGrupos.success && resultadoGrupos.data && page === 1) {
         setGrupos(resultadoGrupos.data || [])
       }
     } catch (error) {
       console.error('Erro ao carregar dados:', error)
     } finally {
-      setLoading(false)
+      loader(false)
     }
   }, [filtro, tipoFiltro, grupoFiltro])
 
   useEffect(() => {
-    carregarDados()
-  }, [carregarDados])
+    setCurrentPage(1)
+    carregarDados(1, false)
+  }, [filtro, tipoFiltro, grupoFiltro])
+
+  const carregarMais = () => {
+    carregarDados(currentPage + 1, true)
+  }
 
 
   const handleDelete = async (id: string, descricao: string) => {
@@ -79,6 +94,7 @@ export default function ProdutosPage() {
     setFiltroInput('')
     setTipoFiltro('')
     setGrupoFiltro('')
+    setCurrentPage(1)
   }
 
 
@@ -141,7 +157,12 @@ export default function ProdutosPage() {
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                     Catálogo de Produtos
                   </h1>
-                  <p className="text-sm text-gray-500 font-medium">Total: {total} produtos disponíveis</p>
+                  <p className="text-sm text-gray-500 font-medium">
+                    Exibindo: {produtos.length} de {total} produtos
+                    {produtos.length < total && (
+                      <span className="text-blue-600 ml-2">• Carregue mais abaixo</span>
+                    )}
+                  </p>
                 </div>
               </div>
             </div>
@@ -445,6 +466,29 @@ export default function ProdutosPage() {
                 </div>
               )
             })}
+            
+            {/* Botão Carregar Mais */}
+            {produtos.length > 0 && produtos.length < total && (
+              <div className="flex justify-center mt-8 mb-4">
+                <Button
+                  onClick={carregarMais}
+                  disabled={loadingMore}
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-0 hover:shadow-xl hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed px-8 py-3"
+                >
+                  {loadingMore ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Carregando...
+                    </>
+                  ) : (
+                    <>
+                      <Package className="h-4 w-4 mr-2" />
+                      Carregar Mais Produtos ({produtos.length} de {total})
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
           </>
         )}
       </div>
