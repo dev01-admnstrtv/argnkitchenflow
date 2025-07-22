@@ -56,7 +56,7 @@ export default function SolicitacoesPage() {
     carregarDados(1)
   }, [carregarDados])
 
-  const lastElementRef = useCallback(node => {
+  const lastElementRef = useCallback((node: HTMLElement | null) => {
     if (loadingMore) return
     if (observer.current) observer.current.disconnect()
     observer.current = new IntersectionObserver(entries => {

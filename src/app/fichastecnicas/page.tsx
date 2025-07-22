@@ -320,6 +320,7 @@ export default function FichasTecnicasPage() {
                         className="flex-1"
                       >
                         <Link href={`/fichastecnicas/${ficha.id}`}>
+                          {/* eslint-disable-next-line jsx-a11y/alt-text */}
                           <Image className="h-4 w-4 mr-1" />
                           Ver Detalhes
                         </Link>
