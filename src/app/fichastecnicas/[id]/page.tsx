@@ -413,7 +413,7 @@ export default function FichaTecnicaDetalhesPage() {
                   {ficha.pracas.map((pracaVinculo) => (
                     <div key={pracaVinculo.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                       <span className="font-medium">{pracaVinculo.praca_destino.nome}</span>
-                      <Badge variant={pracaVinculo.ativo ? "default" : "secondary"} size="sm">
+                      <Badge variant={pracaVinculo.ativo ? "default" : "secondary"}
                         {pracaVinculo.ativo ? "Ativo" : "Inativo"}
                       </Badge>
                     </div>
