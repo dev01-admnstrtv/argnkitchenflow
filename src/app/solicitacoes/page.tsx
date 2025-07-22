@@ -102,7 +102,7 @@ export default function SolicitacoesPage() {
       solicitacao.praca_destino.nome.toLowerCase().includes(filtro.toLowerCase()) ||
       solicitacao.observacoes?.toLowerCase().includes(filtro.toLowerCase()) ||
       solicitacao.status.toLowerCase().includes(filtro.toLowerCase()) ||
-      solicitacao.solicitante?.toLowerCase().includes(filtro.toLowerCase())
+      solicitacao.solicitante?.nome?.toLowerCase().includes(filtro.toLowerCase())
     )
   }, [solicitacoes, filtro])
 
