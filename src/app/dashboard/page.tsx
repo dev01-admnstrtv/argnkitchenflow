@@ -130,31 +130,31 @@ export default function DashboardPage() {
 
       // Produtos
       const produtosRes = await getTotalProdutos()
-      if (produtosRes.success) {
+      if (produtosRes.success && produtosRes.data !== undefined) {
         setTotalProdutos(produtosRes.data)
       }
 
       // Praças
       const pracasRes = await getTotalPracas()
-      if (pracasRes.success) {
+      if (pracasRes.success && pracasRes.data !== undefined) {
         setTotalPracas(pracasRes.data)
       }
 
       // Separação
       const separacaoRes = await buscarEstatisticasSeparacao()
-      if (separacaoRes.success) {
+      if (separacaoRes.success && separacaoRes.data) {
         setSeparacaoStats(separacaoRes.data)
       }
 
       // Inventários
       const inventariosRes = await getTotalInventarios()
-      if (inventariosRes.success) {
+      if (inventariosRes.success && inventariosRes.data !== undefined) {
         setTotalInventarios(inventariosRes.data)
       }
 
       // Fichas Técnicas
       const fichasRes = await getTotalFichasTecnicas()
-      if (fichasRes.success) {
+      if (fichasRes.success && fichasRes.data !== undefined) {
         setTotalFichasTecnicas(fichasRes.data)
       }
     }
