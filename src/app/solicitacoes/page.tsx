@@ -249,7 +249,7 @@ export default function SolicitacoesPage() {
                                   📍 {solicitacao.praca_destino.nome}
                                 </CardTitle>
                                 <p className="text-sm text-gray-600 mt-1">
-                                  Solicitante: {solicitacao.solicitante}
+                                  Solicitante: {solicitacao.solicitante?.nome}
                                 </p>
                               </div>
                             </div>
