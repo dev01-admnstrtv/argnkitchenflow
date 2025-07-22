@@ -108,7 +108,7 @@ export default function SolicitacoesPage() {
 
   const solicitacoesAgrupadas = useMemo(() => {
     return solicitacoesFiltradas.reduce((acc, solicitacao) => {
-      const data = formatDate(solicitacao.data_solicitacao, true)
+      const data = formatDate(solicitacao.data_solicitacao)
       if (!acc[data]) {
         acc[data] = []
       }
