@@ -111,7 +111,7 @@ function NovaSolicitacaoPageContent() {
     } else {
       setProdutosFiltrados([])
     }
-  }, [searchProduto])
+  }, [searchProduto]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const adicionarItem = (produto: Produto) => {
     const novoItem: ItemSolicitacao = {

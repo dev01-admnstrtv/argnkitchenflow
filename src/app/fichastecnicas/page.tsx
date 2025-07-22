@@ -320,7 +320,7 @@ export default function FichasTecnicasPage() {
                         className="flex-1"
                       >
                         <Link href={`/fichastecnicas/${ficha.id}`}>
-                          <Image className="h-4 w-4 mr-1" />
+                          <Image className="h-4 w-4 mr-1" alt="" />
                           Ver Detalhes
                         </Link>
                       </Button>

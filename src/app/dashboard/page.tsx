@@ -124,7 +124,7 @@ export default function DashboardPage() {
     async function fetchData() {
       // Solicitações
       const solicitacoesRes = await getDailySolicitacoesStats()
-      if (solicitacoesRes.success) {
+      if (solicitacoesRes.success && solicitacoesRes.data) {
         setSolicitacoesStats(solicitacoesRes.data)
       }
 

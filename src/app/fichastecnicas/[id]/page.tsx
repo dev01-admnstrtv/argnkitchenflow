@@ -33,7 +33,7 @@ export default function FichaTecnicaDetalhesPage() {
     if (id) {
       carregarFicha()
     }
-  }, [id])
+  }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const carregarFicha = async () => {
     setLoading(true)

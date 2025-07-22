@@ -37,11 +37,11 @@ export default function PracaFichasTecnicasPage() {
     if (pracaId) {
       carregarDados()
     }
-  }, [pracaId])
+  }, [pracaId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     aplicarFiltros()
-  }, [fichas, filtro, categoriaFiltro, dificuldadeFiltro])
+  }, [fichas, filtro, categoriaFiltro, dificuldadeFiltro]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const carregarDados = async () => {
     setLoading(true)
