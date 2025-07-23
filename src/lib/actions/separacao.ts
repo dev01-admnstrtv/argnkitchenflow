@@ -357,8 +357,8 @@ export async function buscarEstatisticasSeparacao() {
       throw new Error('Erro ao buscar total de solicitações: ' + totalError.message)
     }
 
-    const percentualConclusao = totalSolicitacoesCount > 0 
-      ? ((totalSolicitacoesCount - (pendenteCount || 0)) / totalSolicitacoesCount) * 100
+    const percentualConclusao = (totalSolicitacoesCount || 0) > 0 
+      ? (((totalSolicitacoesCount || 0) - (pendenteCount || 0)) / (totalSolicitacoesCount || 0)) * 100
       : 0
 
     const estatisticas = {

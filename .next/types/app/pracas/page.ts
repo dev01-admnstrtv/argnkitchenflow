@@ -1,4 +1,4 @@
-// File: E:\Projetos\EngenhariaContextoPTbr\ArgnKitchenFlow\ArgnKitchenFlow\src\app\pracas\page.tsx
+// File: /mnt/e/Projetos/EngenhariaContextoPTbr/ArgnKitchenFlow/ArgnKitchenFlow/src/app/pracas/page.tsx
 import * as entry from '../../../../src/app/pracas/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

@@ -408,7 +408,7 @@ export async function buscarFichasPorPraca(pracaId: string): Promise<ActionResul
       return { success: false, error: error.message }
     }
 
-    const fichas = data?.map(item => item.ficha_tecnica).filter(Boolean) || []
+    const fichas: FichaTecnica[] = data?.map((item: any) => item.ficha_tecnica as FichaTecnica).filter(Boolean) || []
 
     return { success: true, data: fichas }
   } catch (error) {

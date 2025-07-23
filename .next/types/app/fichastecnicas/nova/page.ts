@@ -1,4 +1,4 @@
-// File: E:\Projetos\EngenhariaContextoPTbr\ArgnKitchenFlow\ArgnKitchenFlow\src\app\fichastecnicas\nova\page.tsx
+// File: /mnt/e/Projetos/EngenhariaContextoPTbr/ArgnKitchenFlow/ArgnKitchenFlow/src/app/fichastecnicas/nova/page.tsx
 import * as entry from '../../../../../src/app/fichastecnicas/nova/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
